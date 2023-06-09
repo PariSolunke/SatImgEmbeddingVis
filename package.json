@@ -1,0 +1,21 @@
+{
+  "name": "satimgvis",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "d3": "^7.8.5",
+    "pub-sub-es": "^2.0.2",
+    "regl": "^2.1.0",
+    "regl-scatterplot": "^1.6.9",
+    "webpack": "^5.86.0"
+  },
+  "devDependencies": {
+    "webpack-cli": "^5.1.4"
+  }
+}

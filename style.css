@@ -1,0 +1,17 @@
+#main-container {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    grid-gap: 10px;
+  }
+  
+  #scatter-plot,
+  #image-gallery {
+    border: 2px solid #000;
+    border-radius: 1%;
+    min-height: 600px;
+  }
+
+  #canvas{
+    height: 100%;
+    width: 100%;
+  }
