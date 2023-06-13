@@ -11,8 +11,40 @@ let blankSrc="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwC
 let pageElement=document.getElementById("pagination")
 let pageButton1, pageButton2, pageButton3, dots1, dots2, nextButton,prevButton;
 
+
+//handler to change pages
 const handlePageChange = (event) =>{
-  if (totalPages>3){
+
+  if (totalPages<=3){
+
+    pageButton1.className=""
+    pageButton2.className=""
+    pageButton3.className=""
+
+    if (event.target.id=="pageButton1"){
+      pageButton1.className="active"
+      if (curPage==1)
+        return
+      curPage=1
+    }
+
+    else if (event.target.id=="pageButton2"){
+      pageButton2.className="active"
+      if (curPage==2)
+        return
+      curPage=2
+    }
+
+    else if (event.target.id=="pageButton3"){
+      pageButton3.className="active"
+      if (curPage==3)
+        return
+      curPage=3
+    }
+  }
+
+  else if (totalPages>3){
+
     if (event.target.id=="pageButton1"){
       if (curPage==1)
         return
@@ -37,7 +69,6 @@ const handlePageChange = (event) =>{
       curPage=curPage+1
     }
     
-
     if (curPage==1){
       resetImgs();
       return;
@@ -57,7 +88,6 @@ const handlePageChange = (event) =>{
       pageButton3.className=""
       if (curPage==totalPages-1)
         dots2.style.display="none";
-      
     }
 
     else if (curPage==totalPages){
@@ -67,21 +97,20 @@ const handlePageChange = (event) =>{
       pageButton2.innerHTML=String(totalPages-1)
       pageButton3.className="active"
     }
-
-    //change images
-    let startIndex= (curPage-1) *  6
-    let imgElements=document.getElementsByClassName('img'); 
-    console.log(selectedPaths)
-    console.log(startIndex)
-    for (let i=startIndex;i<startIndex+6; i++){
-      if (i<selectedPaths.length)
-        imgElements[i-startIndex].src="./few_patches/"+selectedPaths[i]
-      else
-        imgElements[i-startIndex].src=blankSrc
-    }  
   }
-  
+
+  //change images
+  let startIndex= (curPage-1) *  9
+  let imgElements=document.getElementsByClassName('img'); 
+  for (let i=startIndex;i<startIndex+9; i++){
+    if (i<selectedPaths.length)
+      imgElements[i-startIndex].src="./few_patches/"+selectedPaths[i]
+    else
+      imgElements[i-startIndex].src=blankSrc
+  }   
 }
+
+//Reset Pagination
 
 const resetPagination = () =>{
   curPage=1
@@ -166,14 +195,13 @@ const resetPagination = () =>{
       pageButton3.innerHTML=String(totalPages)
       pageElement.append(pageButton3)
     }
-
-
   }
 }
 
+//Reset Images
 const resetImgs = () => {
   let imgElements=document.getElementsByClassName('img'); 
-  for (let i=0;i<6; i++){
+  for (let i=0;i<9; i++){
     if (i<selectedPaths.length)
       imgElements[i].src="./few_patches/"+selectedPaths[i]
     else
@@ -182,19 +210,30 @@ const resetImgs = () => {
   resetPagination()
 }
 
+//funciton to handle select Lasso event
 const onLassoSelect = (selection) =>{
   selectedPoints=selection.points
   let duplicatePaths=[]
   selectedPoints.forEach((point)=>duplicatePaths.push(urls[point]))
   selectedPaths=[...new Set(duplicatePaths)]
-  totalPages = Math.ceil(selectedPaths.length/6)
+  //selectedPaths=duplicatePaths;
+  totalPages = Math.ceil(selectedPaths.length/9)
+  resetImgs()
+}
+
+//function to handle deselect Lasso event
+const onLassoDeselect = () => {
+  selectedPoints=[]
+  selectedPaths=[]
+  totalPages=1
   resetImgs()
 }
 
 
-
+//load csv file
 const data = await d3.csv('./few_patches/sample_proj.csv')
 
+//get coordinates and urls from the loaded data
 data.forEach((d, i)=>{
   coordinates.push ([parseFloat(d.x), parseFloat(d.y)]);
   if (i==0){
@@ -210,38 +249,46 @@ data.forEach((d, i)=>{
   urls.push(d.path)
 });
 
-
+//The below code is used to normalize the x and y coordinates between -1 to 1 in browser, not needed if coordinates are already normalized
+/*
 let xScale = d3.scaleLinear().domain([xMin,xMax]).range([-1,1])
 let yScale = d3.scaleLinear().domain([yMin,yMax]).range([-1,1])
-let coordinates2=[]
 
-console.log(coordinates[0])
 coordinates.forEach((element, index)=> {
   coordinates[index][0]=xScale(element[0])
   coordinates[index][1]=yScale(element[1])
 })
+*/
 
-console.log(coordinates);
-console.log(urls)
 const canvas = document.querySelector('#canvas');
 
-const { width, height } = canvas.getBoundingClientRect();
+const { width, height } = canvas.getBoundingClientRect()
+
+let pointSize = 1
+if (coordinates.length < 1000)
+  pointSize=7
+else if(coordinates.length < 10000)
+  pointSize=6
+else if(coordinates.length < 50000)
+  pointSize=4  
+else if (coordinates.length< 170000)
+  pointSize=2
 
 const scatterplot = createScatterplot({
   canvas,
   width,
   height,
-  pointSize: 5,
-  pointColor:"#c192e8",
+  pointSize: pointSize,
+  pointColor:"#a866de",
   opacity:0.5
 });
 
+//on selection of points
 scatterplot.subscribe('select', onLassoSelect);
 
-/*
-const points = new Array(1000000)
-  .fill()
-  .map(() => [-1 + Math.random() * 2, -1 + Math.random() * 2]);
-*/
+//on deselect
+scatterplot.subscribe('deselect', onLassoDeselect);
+
+//draw scatterplot of projection
 scatterplot.draw(coordinates);
 
