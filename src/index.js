@@ -104,7 +104,7 @@ const handlePageChange = (event) =>{
   let imgElements=document.getElementsByClassName('img'); 
   for (let i=startIndex;i<startIndex+9; i++){
     if (i<selectedPaths.length)
-      imgElements[i-startIndex].src="./few_patches/"+selectedPaths[i]
+      imgElements[i-startIndex].src="./data/"+selectedPaths[i]
     else
       imgElements[i-startIndex].src=blankSrc
   }   
@@ -203,7 +203,7 @@ const resetImgs = () => {
   let imgElements=document.getElementsByClassName('img'); 
   for (let i=0;i<9; i++){
     if (i<selectedPaths.length)
-      imgElements[i].src="./few_patches/"+selectedPaths[i]
+      imgElements[i].src="./data/"+selectedPaths[i]
     else
       imgElements[i].src=blankSrc
   }
@@ -231,7 +231,7 @@ const onLassoDeselect = () => {
 
 
 //load csv file
-const data = await d3.csv('./few_patches/sample_proj.csv')
+const data = await d3.csv('./data/proj.csv')
 
 //get coordinates and urls from the loaded data
 data.forEach((d, i)=>{
@@ -280,7 +280,8 @@ const scatterplot = createScatterplot({
   height,
   pointSize: pointSize,
   pointColor:"#a866de",
-  opacity:0.5
+  opacity:0.5,
+  cameraDistance:1.05
 });
 
 //on selection of points
