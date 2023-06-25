@@ -4,11 +4,13 @@ let coordinates=[]
 let urls=[]
 let curPage=1
 let totalPages=0
+let number_imgs = 140
 let selectedPoints=[]
 let selectedPaths=[]
 let xMin,xMax,yMin,yMax;
 let blankSrc="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNgYAAAAAMAASsJTYQAAAAASUVORK5CYII=";
 let pageElement=document.getElementById("pagination")
+let datasetSelection = document.getElementById("dataset_selection");
 let pageButton1, pageButton2, pageButton3, dots1, dots2, nextButton,prevButton;
 
 
@@ -100,11 +102,11 @@ const handlePageChange = (event) =>{
   }
 
   //change images
-  let startIndex= (curPage-1) *  9
+  let startIndex= (curPage-1) *  number_imgs
   let imgElements=document.getElementsByClassName('img'); 
-  for (let i=startIndex;i<startIndex+9; i++){
+  for (let i=startIndex;i<startIndex+number_imgs; i++){
     if (i<selectedPaths.length)
-      imgElements[i-startIndex].src="./data/"+selectedPaths[i]
+      imgElements[i-startIndex].src="../data/"+selectedPaths[i]
     else
       imgElements[i-startIndex].src=blankSrc
   }   
@@ -201,9 +203,9 @@ const resetPagination = () =>{
 //Reset Images
 const resetImgs = () => {
   let imgElements=document.getElementsByClassName('img'); 
-  for (let i=0;i<9; i++){
+  for (let i=0;i<number_imgs; i++){
     if (i<selectedPaths.length)
-      imgElements[i].src="./data/"+selectedPaths[i]
+      imgElements[i].src= selectedPaths[i]
     else
       imgElements[i].src=blankSrc
   }
@@ -217,7 +219,7 @@ const onLassoSelect = (selection) =>{
   selectedPoints.forEach((point)=>duplicatePaths.push(urls[point]))
   selectedPaths=[...new Set(duplicatePaths)]
   //selectedPaths=duplicatePaths;
-  totalPages = Math.ceil(selectedPaths.length/9)
+  totalPages = Math.ceil(selectedPaths.length/number_imgs)
   resetImgs()
 }
 
