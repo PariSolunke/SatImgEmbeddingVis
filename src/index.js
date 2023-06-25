@@ -106,7 +106,7 @@ const handlePageChange = (event) =>{
   let imgElements=document.getElementsByClassName('img'); 
   for (let i=startIndex;i<startIndex+number_imgs; i++){
     if (i<selectedPaths.length)
-      imgElements[i-startIndex].src="../data/"+selectedPaths[i]
+      imgElements[i-startIndex].src="../GDPFinder/data/"+selectedPaths[i]
     else
       imgElements[i-startIndex].src=blankSrc
   }   
@@ -205,7 +205,7 @@ const resetImgs = () => {
   let imgElements=document.getElementsByClassName('img'); 
   for (let i=0;i<number_imgs; i++){
     if (i<selectedPaths.length)
-      imgElements[i].src= selectedPaths[i]
+      imgElements[i].src= "../GDPFinder/data/" + selectedPaths[i]
     else
       imgElements[i].src=blankSrc
   }
