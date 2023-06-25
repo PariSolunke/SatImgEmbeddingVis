@@ -237,7 +237,7 @@ const data = await d3.csv('./data/proj.csv')
 
 //get coordinates and urls from the loaded data
 data.forEach((d, i)=>{
-  coordinates.push ([parseFloat(d.x), parseFloat(d.y)]);
+  coordinates.push ([parseFloat(d.x), parseFloat(d.y), parseInt(d.cluster)]);
   if (i==0){
     xMin=xMax=coordinates[i][0]
     yMin=yMax=coordinates[i][1]
@@ -281,7 +281,8 @@ const scatterplot = createScatterplot({
   width,
   height,
   pointSize: pointSize,
-  pointColor:"#a866de",
+  colorBy: "valueA",
+  pointColor: [].concat(...Array(2).fill(d3.schemeCategory10)),
   opacity:0.5,
   cameraDistance:1.05
 });
