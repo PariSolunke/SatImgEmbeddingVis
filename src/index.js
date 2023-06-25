@@ -233,7 +233,7 @@ const onLassoDeselect = () => {
 
 
 //load csv file
-const data = await d3.csv('./data/proj.csv')
+const data = await d3.csv('./data/AE_resnet50_64_proj.csv')
 
 //get coordinates and urls from the loaded data
 data.forEach((d, i)=>{
@@ -296,3 +296,49 @@ scatterplot.subscribe('deselect', onLassoDeselect);
 //draw scatterplot of projection
 scatterplot.draw(coordinates);
 
+const update_data = (event) => {
+  var dataset_name = document.getElementById("dataset").value;
+  var data = d3.csv('./data/' + dataset_name + "_proj.csv").then(
+    function(data){
+      console.log(data)
+
+      urls = [];
+      coordinates = [];
+    
+
+      data.forEach((d, i)=>{
+        coordinates.push ([parseFloat(d.x), parseFloat(d.y), parseInt(d.cluster)]);
+        if (i==0){
+          xMin=xMax=coordinates[i][0]
+          yMin=yMax=coordinates[i][1]
+        }
+        else{
+          xMin=Math.min(xMin, coordinates[i][0])
+          xMax=Math.max(xMax, coordinates[i][0])
+          yMin=Math.min(yMin, coordinates[i][1])
+          yMax=Math.max(yMax, coordinates[i][1])
+        }
+        urls.push(d.path)
+      });
+      scatterplot.draw(coordinates);
+    }
+  )
+
+}
+
+
+var dataset_selector = document.createElement("select")
+dataset_selector.id= "dataset"
+dataset_selector.innerHTML = `
+<option value="AE_resnet50_10">AE_resnet50_10</option>
+<option value="AE_resnet50_32">AE_resnet50_32</option>
+<option value="AE_resnet50_64">AE_resnet50_64</option>
+<option value="AE_resnet50_100">AE_resnet50_100</option>
+<option value="DEC_resnet50_clusters_2">DEC_resnet50_clusters_2</option>
+<option value="DEC_resnet50_clusters_10">DEC_resnet50_clusters_10</option>
+<option value="DEC_resnet50_clusters_20">DEC_resnet50_clusters_20</option>
+<option value="DEC_resnet50_clusters_30">DEC_resnet50_clusters_30</option>
+<option value="DEC_resnet50_clusters_50">DEC_resnet50_clusters_50</option>
+`
+dataset_selector.onchange = update_data;
+datasetSelection.appendChild(dataset_selector);
