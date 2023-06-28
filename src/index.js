@@ -4,11 +4,13 @@ let coordinates=[]
 let urls=[]
 let curPage=1
 let totalPages=0
+let number_imgs = 140
 let selectedPoints=[]
 let selectedPaths=[]
 let xMin,xMax,yMin,yMax;
 let blankSrc="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNgYAAAAAMAASsJTYQAAAAASUVORK5CYII=";
 let pageElement=document.getElementById("pagination")
+let datasetSelection = document.getElementById("dataset_selection");
 let pageButton1, pageButton2, pageButton3, dots1, dots2, nextButton,prevButton;
 
 
@@ -100,11 +102,11 @@ const handlePageChange = (event) =>{
   }
 
   //change images
-  let startIndex= (curPage-1) *  9
+  let startIndex= (curPage-1) *  number_imgs
   let imgElements=document.getElementsByClassName('img'); 
-  for (let i=startIndex;i<startIndex+9; i++){
+  for (let i=startIndex;i<startIndex+number_imgs; i++){
     if (i<selectedPaths.length)
-      imgElements[i-startIndex].src="./data/"+selectedPaths[i]
+      imgElements[i-startIndex].src="../GDPFinder/data/"+selectedPaths[i]
     else
       imgElements[i-startIndex].src=blankSrc
   }   
@@ -201,9 +203,9 @@ const resetPagination = () =>{
 //Reset Images
 const resetImgs = () => {
   let imgElements=document.getElementsByClassName('img'); 
-  for (let i=0;i<9; i++){
+  for (let i=0;i<number_imgs; i++){
     if (i<selectedPaths.length)
-      imgElements[i].src="./data/"+selectedPaths[i]
+      imgElements[i].src= "../GDPFinder/data/" + selectedPaths[i]
     else
       imgElements[i].src=blankSrc
   }
@@ -217,7 +219,7 @@ const onLassoSelect = (selection) =>{
   selectedPoints.forEach((point)=>duplicatePaths.push(urls[point]))
   selectedPaths=[...new Set(duplicatePaths)]
   //selectedPaths=duplicatePaths;
-  totalPages = Math.ceil(selectedPaths.length/9)
+  totalPages = Math.ceil(selectedPaths.length/number_imgs)
   resetImgs()
 }
 
@@ -231,11 +233,11 @@ const onLassoDeselect = () => {
 
 
 //load csv file
-const data = await d3.csv('./data/proj.csv')
+const data = await d3.csv('./data/AE_resnet50_64_proj.csv')
 
 //get coordinates and urls from the loaded data
 data.forEach((d, i)=>{
-  coordinates.push ([parseFloat(d.x), parseFloat(d.y)]);
+  coordinates.push ([parseFloat(d.x), parseFloat(d.y), parseInt(d.cluster)]);
   if (i==0){
     xMin=xMax=coordinates[i][0]
     yMin=yMax=coordinates[i][1]
@@ -279,7 +281,8 @@ const scatterplot = createScatterplot({
   width,
   height,
   pointSize: pointSize,
-  pointColor:"#a866de",
+  colorBy: "valueA",
+  pointColor: [].concat(...Array(2).fill(d3.schemeCategory10)),
   opacity:0.5,
   cameraDistance:1.05
 });
@@ -293,3 +296,49 @@ scatterplot.subscribe('deselect', onLassoDeselect);
 //draw scatterplot of projection
 scatterplot.draw(coordinates);
 
+const update_data = (event) => {
+  var dataset_name = document.getElementById("dataset").value;
+  var data = d3.csv('./data/' + dataset_name + "_proj.csv").then(
+    function(data){
+      console.log(data)
+
+      urls = [];
+      coordinates = [];
+    
+
+      data.forEach((d, i)=>{
+        coordinates.push ([parseFloat(d.x), parseFloat(d.y), parseInt(d.cluster)]);
+        if (i==0){
+          xMin=xMax=coordinates[i][0]
+          yMin=yMax=coordinates[i][1]
+        }
+        else{
+          xMin=Math.min(xMin, coordinates[i][0])
+          xMax=Math.max(xMax, coordinates[i][0])
+          yMin=Math.min(yMin, coordinates[i][1])
+          yMax=Math.max(yMax, coordinates[i][1])
+        }
+        urls.push(d.path)
+      });
+      scatterplot.draw(coordinates);
+    }
+  )
+
+}
+
+
+var dataset_selector = document.createElement("select")
+dataset_selector.id= "dataset"
+dataset_selector.innerHTML = `
+<option value="AE_resnet50_10">AE_resnet50_10</option>
+<option value="AE_resnet50_32">AE_resnet50_32</option>
+<option value="AE_resnet50_64">AE_resnet50_64</option>
+<option value="AE_resnet50_100">AE_resnet50_100</option>
+<option value="DEC_resnet50_clusters_2">DEC_resnet50_clusters_2</option>
+<option value="DEC_resnet50_clusters_10">DEC_resnet50_clusters_10</option>
+<option value="DEC_resnet50_clusters_20">DEC_resnet50_clusters_20</option>
+<option value="DEC_resnet50_clusters_30">DEC_resnet50_clusters_30</option>
+<option value="DEC_resnet50_clusters_50">DEC_resnet50_clusters_50</option>
+`
+dataset_selector.onchange = update_data;
+datasetSelection.appendChild(dataset_selector);
